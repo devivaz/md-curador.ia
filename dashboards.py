@@ -9,7 +9,7 @@ import utils
 # Configurações da página
 st.set_page_config(
     layout='wide',
-    page_title="Leads CuradorI.A",
+    page_title="Gestão de tráfego CuradorI.A",
     page_icon=":bar_chart:")
 
 
@@ -89,7 +89,7 @@ total_contratos = total_contratos_ia_pratica_pro + total_contratos_vip
 
 taxa_conversao = total_contratos / total_leads * 100 if total_leads > 0 else 0
 
-cac = VALOR_INVESTIMENTO / total_contratos
+cac = VALOR_INVESTIMENTO / total_contratos if total_contratos > 0 else 0
 
 if origem_filter == [] or 'GoogleAds' in origem_filter or 'MetaAds' in origem_filter: 
     # Total de Click e Custo por Click
@@ -233,13 +233,17 @@ leads_por_estado = (
 
 leads_por_estado_top10 = leads_por_estado.sort_values(by="Leads", ascending=False).head(10)
 
+print('leads_por_estado', leads_por_estado_top10)
+print('color', (["#0083B8"] * len(leads_por_estado_top10)) if len(leads_por_estado_top10) > 0 else [])
+print('sort', leads_por_estado_top10.sort_values(by="Leads", ascending=True))
+
 chart_leads_por_estado = px.bar(
     leads_por_estado_top10.sort_values(by="Leads", ascending=True),
     x='Leads',
     y='Estado',
     orientation="h",
     title="Top 10 Estados",
-    color_discrete_sequence=["#0083B8"] * len(leads_por_estado_top10),
+    color_discrete_sequence=(["#0083B8"] * len(leads_por_estado_top10)) if len(leads_por_estado_top10) > 0 else ["#0083B8"],
     template="plotly_white",
 )
 
