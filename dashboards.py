@@ -158,7 +158,7 @@ with col4:
 with col5:
     st.metric("Taxa de Conversão", f"{utils.format_int(taxa_conversao)}%")
 with col6:
-    st.metric("(CAC)", f"R$ {utils.format_real(cac)}")
+    st.metric("CAC", f"R$ {utils.format_real(cac)}")
 with col7:
     st.metric("ROAS", f"{utils.format_real(roas)}")
 
@@ -248,6 +248,7 @@ chart_funil_vendas = go.Figure(go.Funnel(
 chart_funil_vendas.update_layout(
     title="Funil de Vendas",
     funnelmode="stack",
+    font=dict(size=14)  # Tamanho da fonte dos textos nas barras
 )
 
 
