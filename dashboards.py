@@ -189,6 +189,18 @@ chart_leads_por_origem = px.pie(
     color_discrete_sequence=['#ff7f0e', '#1f77b4', '#2ca02c', '#d62728', '#946700'],
 )
 
+# Tamanho da fonte dentro da seção
+chart_leads_por_origem.update_traces(textfont_size=13)
+
+chart_leads_por_origem.update_layout(legend=dict(
+    font=dict(
+        size=15  # Tamanho da fonte da legenda
+    )
+))
+
+
+
+
 # Gráfico Pizza Valor de venda de produtos
 
 # chart_valor_venda_por_produto = px.bar(
@@ -224,6 +236,11 @@ chart_valor_venda_por_produto.update_traces(
     textfont=dict(size=16)  # Tamanho da fonte dos textos nas barras
 )
 
+chart_valor_venda_por_produto.update_layout(legend=dict(
+    font=dict(
+        size=14  # Tamanho da fonte da legenda
+    )
+))
 
 total_clientes = len(df_leads_selection[df_leads_selection["É Cliente"] == 'SIM'])
 
@@ -316,4 +333,4 @@ path_img_curador_ia = 'img/logo_curador_ia_branca.png'
 st.markdown("###")
 
 
-st.image(path_img_curador_ia, width=425)
+st.image(path_img_curador_ia, width=376)
