@@ -13,8 +13,6 @@ df_google_ads = pd.read_csv('./csv/gestao_trafego_googleads.csv', sep=",", decim
 df_google_ads = df_google_ads.dropna(how='all')
 df_google_ads['Plataforma'] = 'GoogleAds'
 
-print(df_google_ads.all())
-
 # Concatenar Planilhas de LEADS
 df_concatenado = pd.concat(
   [df_google_ads, df_metaads], 
@@ -31,6 +29,3 @@ df_concatenado["MesAno"] = df_concatenado['DATA'].dt.strftime('%m/%Y')
 
 # Substituir os meses em inglês pelos correspondentes em português
 df_concatenado["MesAno"] = df_concatenado["MesAno"].replace(meses_to_pt, regex=True)
-
-
-print(df_concatenado)

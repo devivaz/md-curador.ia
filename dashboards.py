@@ -33,6 +33,7 @@ estado_filter = st.sidebar.multiselect(
     options=df_leads['Estado'].unique(),
     placeholder="Todos selecionados")
 
+# Filtros dos totais
 df_leads_selection = df_leads
 df_trafego_selection = df_trafego
 
@@ -60,8 +61,6 @@ max_date = df_trafego['DATA'].max().strftime('%d/%m/%y')
 st.subheader(":bar_chart: Dashboard Gestão de tráfego curador.IA")
 st.markdown(f"###### Período {min_date} até {max_date}")
 
-TICKET_MEDIO = 7000
-
 
 # Calcular valores baseado na seleção dos filtros
 
@@ -71,25 +70,23 @@ VALOR_INVESTIMENTO = df_trafego_selection['VALOR USADO'].astype(float).sum()
 # Total de Leads e Custo por LEAD
 total_leads = len(df_leads_selection)
 total_leads_trafego = df_trafego_selection['LEADS'].astype(int).sum()
-print('LEADS', total_leads)
-print('LEADS TRAFEGO', total_leads_trafego)
+# print('LEADS', total_leads)
+# print('LEADS TRAFEGO', total_leads_trafego)
 cpl = VALOR_INVESTIMENTO / total_leads if total_leads > 0 else 0
 
 
 
 
 # Contratos
-TICKET_IA_PRATICA_PRO = 5000
-TICKET_VIP = 3000
 contratos_ia_pratica_pro = df_leads_selection[df_leads_selection["Comprou ia na prática PRO"] == 'SIM']
-contratos_vip = df_leads_selection[df_leads_selection["ingresso VIP"].str.contains('Comprou', na=False)]
+contratos_vip = df_leads_selection[df_leads_selection["ingresso VIP"] == 'Comprou']
 total_contratos_ia_pratica_pro = len(contratos_ia_pratica_pro)
 total_contratos_vip = len(contratos_vip)
-total_contratos = total_contratos_ia_pratica_pro + total_contratos_vip
+total_vendas = total_contratos_ia_pratica_pro + total_contratos_vip
 
-taxa_conversao = total_contratos / total_leads * 100 if total_leads > 0 else 0
+taxa_conversao = total_vendas / total_leads * 100 if total_leads > 0 else 0
 
-cac = VALOR_INVESTIMENTO / total_contratos if total_contratos > 0 else 0
+cac = VALOR_INVESTIMENTO / total_vendas if total_vendas > 0 else 0
 
 if origem_filter == [] or 'GoogleAds' in origem_filter or 'MetaAds' in origem_filter: 
     # Total de Click e Custo por Click
@@ -102,11 +99,15 @@ if origem_filter == [] or 'GoogleAds' in origem_filter or 'MetaAds' in origem_fi
 
     # Alcance
     total_alcance = df_trafego_selection['ALCANCE'].dropna().astype(int).sum()
+
+    # ROAS
+    roas = total_vendas / VALOR_INVESTIMENTO * 100
 else: 
     total_clicks = 0
     total_impressoes = 0
+    roas = 0
 
-col1, col2, col3, col4, col5, col6 = st.columns(6)
+col1, col2, col3, col4, col5, col6, col7 = st.columns(7)
 
 with col1:
     st.metric("Investimento", f"R$ {utils.format_real(VALOR_INVESTIMENTO)}")
@@ -116,11 +117,13 @@ with col2:
 with col3:
     st.metric("Custo por Lead (CPL)", f"R$ {utils.format_real(cpl)}")
 with col4:
-    st.metric("Clientes", utils.format_int(total_contratos))
+    st.metric("Vendas", utils.format_int(total_vendas))
 with col5:
     st.metric("Taxa de Conversão", f"{utils.format_int(taxa_conversao)}%")
 with col6:
-    st.metric("Custo de Aquisição de Clientes (CAC)", f"R$ {utils.format_real(cac)}")
+    st.metric("(CAC)", f"R$ {utils.format_real(cac)}")
+with col7:
+    st.metric("ROAS", f"{utils.format_int(roas)}")
 
 
 st.markdown("---")
@@ -206,24 +209,30 @@ chart_valor_venda_por_produto.update_traces(
 )
 
 
-# FAZ SENTIDO UM FUNIL DE VENDAS?
-# etapas = ['Leads', 'Cliques']
-# valores = [
-#     df_trafego_selection['LEADS'].sum(),
-# ]
+total_clientes = len(df_leads_selection[df_leads_selection["É Cliente"] == 'SIM'])
+
+etapas = ['Cliques', 'Leads', 'Clientes']
+valores = [
+    total_clicks, #df_trafego_selection['CLIQUES'].sum(),
+    total_leads,  #df_trafego_selection['LEADS'].sum(),
+    total_clientes,
+]
+
+cor_roxa_suave = "#A78BBF"
 
 # # Criar gráfico de funil
-# fig = go.Figure(go.Funnel(
-#     y=etapas,
-#     x=valores,
-#     textinfo="value+percent initial"
-# ))
+chart_funil_vendas = go.Figure(go.Funnel(
+    y=etapas,
+    x=valores,
+    textinfo="value",
+    marker=dict(color=cor_roxa_suave))
+)
 
-# # Atualizar o layout do gráfico
-# fig.update_layout(
-#     title="Funil de Vendas",
-#     funnelmode="stack"
-# )
+# Atualizar o layout do gráfico
+chart_funil_vendas.update_layout(
+    title="Funil de Vendas",
+    funnelmode="stack",
+)
 
 
 # Gráfico LEADS por Estado
@@ -232,10 +241,6 @@ leads_por_estado = (
 )
 
 leads_por_estado_top10 = leads_por_estado.sort_values(by="Leads", ascending=False).head(10)
-
-print('leads_por_estado', leads_por_estado_top10)
-print('color', (["#0083B8"] * len(leads_por_estado_top10)) if len(leads_por_estado_top10) > 0 else [])
-print('sort', leads_por_estado_top10.sort_values(by="Leads", ascending=True))
 
 chart_leads_por_estado = px.bar(
     leads_por_estado_top10.sort_values(by="Leads", ascending=True),
@@ -248,18 +253,21 @@ chart_leads_por_estado = px.bar(
 )
 
 
-left_col, middle_col = st.columns(2)
+left_col, right_col = st.columns(2)
 # left_col, middle_col, right_col = st.columns(3)
 
 with left_col:
     st.plotly_chart(chart_leads_por_origem)
-with middle_col:
+with right_col:
     st.plotly_chart(chart_valor_venda_por_produto)
-# with right_col:
-#     st.plotly_chart(chart_leads_por_estado)
 
 # with right_col:
-st.plotly_chart(chart_leads_por_estado)
+left_col, right_col = st.columns(2)
+with left_col:
+    st.plotly_chart(chart_leads_por_estado)
+with right_col:
+    st.plotly_chart(chart_funil_vendas)
+
 
 # Gráfico Impressão por dia
 group_by_data = df_trafego_selection.groupby('DATA').agg({
@@ -285,16 +293,3 @@ chart_impressao_por_dia = px.line(
 #     st.plotly_chart(chart_impressao_por_dia)
 # with right_col:
 #     st.plotly_chart(chart_leads_por_estado)
-
-
-
-# st.subheader("Contratos:")
-#     subcol1, subcol2, subcol3 = st.columns(3)
-#     with subcol1:
-#         st.metric(label="Ia na prática PRO", value=total_contratos_ia_pratica_pro)
-#     with subcol2:
-#         st.metric(label="VIP", value=total_contratos_vip)
-#     with subcol3:
-#         st.metric(label="Total", value=total_contratos)
-
-

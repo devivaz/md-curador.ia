@@ -11,13 +11,35 @@ df_leads_gratuito = df_leads_gratuito.dropna(how='all')
 df_leads_vip = pd.read_csv('./csv/leads_ingresso_vip.csv', sep=";", decimal=',', skip_blank_lines=True)
 df_leads_vip = df_leads_vip.dropna(how='all')
 
-print(df_leads_vip.all())
+# print("Duplicated df_leads_vip", df_leads_vip[df_leads_vip.duplicated(subset='E-mail:')])
+# print("Duplicated df_leads_gratuito", df_leads_gratuito[df_leads_gratuito.duplicated(subset='E-mail:')])
 
 # Concatenar Planilhas de LEADS
 df_concatenado = pd.concat([df_leads_vip, df_leads_gratuito], ignore_index=True)
-print(df_leads_vip)
+
+
+print(df_concatenado["ia na prática PRO"].astype(str))
+
+# Comprou IA na prática PRO (dois preços)
+df_concatenado["Comprou ia na prática PRO"] = df_concatenado["ia na prática PRO"].astype(str).str.contains('Comprou', na=False).map({True: 'SIM', False: 'NÃO'})
+
+# Comprou algum ingresso
+def is_cliente(row):
+  if row["Comprou ia na prática PRO"] == "SIM" or row["ingresso VIP"] == 'Comprou':
+    return "SIM"
+  else: 
+    return "NÃO"
+
+df_concatenado["É Cliente"] = df_concatenado.apply(is_cliente, axis=1)
+
+
+df_concatenado.to_csv('arquivo_merged_dup.csv', index=False, sep=';')
+
 # Remover duplicatas mantendo apenas o primeiro registro
 df_concatenado.drop_duplicates(subset='E-mail:', keep='first', inplace=True)
+
+# print("DROP DUPLICATES")
+# print("Duplicated df_concatenado", df_concatenado[df_concatenado.duplicated(subset='E-mail:')])
 
 
 # Converter data para tipo datetime e aplicar ordenação
@@ -38,15 +60,10 @@ df_concatenado["MesAno"] = df_concatenado["MesAno"].replace(meses_to_pt, regex=T
 df_concatenado['DDD + Telefone:'] = df_concatenado["DDD + Telefone:"].str.replace(r'\D', '', regex=True)
 # Obter DDD
 df_concatenado['DDD'] = df_concatenado["DDD + Telefone:"].apply(lambda x: x[:2])
-print(df_concatenado['DDD'].unique())
+# print(df_concatenado['DDD'].unique())
 
 # Estado pelo DDD
 df_concatenado['Estado'] = df_concatenado['DDD'].astype(int).map(ddd_to_estado)
-
-print(df_concatenado["ia na prática PRO"].astype(str))
-
-# Comprou IA na prática PRO (dois preços)
-df_concatenado["Comprou ia na prática PRO"] = df_concatenado["ia na prática PRO"].astype(str).str.contains('Comprou', na=False).map({True: 'SIM', False: 'NÃO'})
 
 
 # Salvar csv concatenado e formatado
