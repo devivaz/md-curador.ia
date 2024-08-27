@@ -1,0 +1,20 @@
+/* Remover github */
+header .stActionButton { visibility: hidden; }
+
+footer { visibility: hidden; }
+
+/* Remover todas as opções exceto o About */
+#bui1 > div > div > ul > *:not(:last-child) {
+    display: none;
+}
+#bui1 > div > div > ul > .main-menu-divider {
+    display: none;
+}
+
+[data-testid=stImage]{
+  text-align: center;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+}

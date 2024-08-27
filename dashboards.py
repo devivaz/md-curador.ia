@@ -12,29 +12,19 @@ st.set_page_config(
     page_title="Gestão de tráfego CuradorI.A",
     page_icon=":bar_chart:",
     menu_items={
-        "About": "https://www.linkedin.com/in/lucaseso",
+        "About": "Author: https://www.linkedin.com/in/lucaseso",
     })
 
+# Importar CSS
+with open("style.css") as f:
+    st.markdown('<style>{}</style>'.format(f.read()), unsafe_allow_html=True)
 
-# Remover github
-hide_header_style = """
-    <style>
-    header .stActionButton { visibility: hidden; }
- 
-    footer { visibility: hidden; }
-
-    #bui1 > div > div > ul > *:not(:last-child) {
-        display: none;
-    }
-    #bui1 > div > div > ul > .main-menu-divider {
-        display: none;
-    }
-    </style>
-"""
-
-st.markdown(hide_header_style, unsafe_allow_html=True)
 
 # Sidebar
+
+# logo
+st.sidebar.image("./img/logo_lumere_branco.png", use_column_width=True)
+
 st.sidebar.header("Aplicar filtros:")
 
 
@@ -319,3 +309,10 @@ chart_impressao_por_dia = px.line(
 #     st.plotly_chart(chart_impressao_por_dia)
 # with right_col:
 #     st.plotly_chart(chart_leads_por_estado)
+path_img_curador_ia = 'img/logo_curador_ia_branca.png'
+
+
+st.markdown("###")
+
+
+st.image(path_img_curador_ia, width=425)
