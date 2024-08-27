@@ -76,17 +76,41 @@ cpl = VALOR_INVESTIMENTO / total_leads if total_leads > 0 else 0
 
 
 
-
 # Contratos
 contratos_ia_pratica_pro = df_leads_selection[df_leads_selection["Comprou ia na prática PRO"] == 'SIM']
 contratos_vip = df_leads_selection[df_leads_selection["ingresso VIP"] == 'Comprou']
-total_contratos_ia_pratica_pro = len(contratos_ia_pratica_pro)
-total_contratos_vip = len(contratos_vip)
-total_vendas = total_contratos_ia_pratica_pro + total_contratos_vip
+count_contratos_ia_pratica_pro = len(contratos_ia_pratica_pro)
+count_contratos_vip = len(contratos_vip)
+count_vendas = count_contratos_ia_pratica_pro + count_contratos_vip
 
-taxa_conversao = total_vendas / total_leads * 100 if total_leads > 0 else 0
+taxa_conversao = count_vendas / total_leads * 100 if total_leads > 0 else 0
 
-cac = VALOR_INVESTIMENTO / total_vendas if total_vendas > 0 else 0
+cac = VALOR_INVESTIMENTO / count_vendas if count_vendas > 0 else 0
+
+
+# Calcular valores de venda
+df_venda_por_produto = pd.DataFrame({
+    'Produto': [
+        'VIP R$ 37,00',
+        'IA na prática PRO R$ 97,00',
+        'IA na prática PRO R$ 197,00'
+    ],
+    'Quantidade': [
+        count_contratos_vip,
+        len(df_leads_selection[df_leads_selection['ia na prática PRO'] == 'Comprou R$97']),
+        len(df_leads_selection[df_leads_selection['ia na prática PRO'] == 'Comprou R$197'])
+    ]
+})
+
+df_venda_por_produto['Valor Total'] = [
+    df_venda_por_produto['Quantidade'][0] * 37,
+    df_venda_por_produto['Quantidade'][1] * 97,
+    df_venda_por_produto['Quantidade'][2] * 197
+]
+
+# Valor Total de vendas
+valor_total_venda = df_venda_por_produto['Valor Total'].sum()
+
 
 if origem_filter == [] or 'GoogleAds' in origem_filter or 'MetaAds' in origem_filter: 
     # Total de Click e Custo por Click
@@ -101,7 +125,9 @@ if origem_filter == [] or 'GoogleAds' in origem_filter or 'MetaAds' in origem_fi
     total_alcance = df_trafego_selection['ALCANCE'].dropna().astype(int).sum()
 
     # ROAS
-    roas = total_vendas / VALOR_INVESTIMENTO * 100
+    print('total_vendas', valor_total_venda)
+    print('VALOR_INVESTIMENTO', VALOR_INVESTIMENTO)
+    roas = valor_total_venda / VALOR_INVESTIMENTO
 else: 
     total_clicks = 0
     total_impressoes = 0
@@ -117,38 +143,17 @@ with col2:
 with col3:
     st.metric("Custo por Lead (CPL)", f"R$ {utils.format_real(cpl)}")
 with col4:
-    st.metric("Vendas", utils.format_int(total_vendas))
+    st.metric("Vendas", utils.format_int(count_vendas))
 with col5:
     st.metric("Taxa de Conversão", f"{utils.format_int(taxa_conversao)}%")
 with col6:
     st.metric("(CAC)", f"R$ {utils.format_real(cac)}")
 with col7:
-    st.metric("ROAS", f"{utils.format_int(roas)}")
+    st.metric("ROAS", f"{utils.format_real(roas)}")
 
 
 st.markdown("---")
 
-# calcular valores de venda
-df_venda_por_produto = pd.DataFrame({
-    'Produto': [
-        'VIP R$ 37,00',
-        'IA na prática PRO R$ 97,00',
-        'IA na prática PRO R$ 197,00'
-    ],
-    'Quantidade': [
-        total_contratos_vip,
-        len(df_leads_selection[df_leads_selection['ia na prática PRO'] == 'Comprou R$97']),
-        len(df_leads_selection[df_leads_selection['ia na prática PRO'] == 'Comprou R$197'])
-    ]
-})
-
-df_venda_por_produto['Valor Total'] = [
-    df_venda_por_produto['Quantidade'][0] * 37,
-    df_venda_por_produto['Quantidade'][1] * 97,
-    df_venda_por_produto['Quantidade'][2] * 197
-]
-
-valor_total_venda = df_venda_por_produto['Valor Total'].sum()
 
 st.markdown(
     f"<h4 style='text-align: center;'>Total em vendas: R$ {utils.format_real(valor_total_venda)}</h4>",
