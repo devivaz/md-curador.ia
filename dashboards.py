@@ -19,7 +19,7 @@ st.set_page_config(
 # Remover github
 hide_header_style = """
     <style>
-    .stToolbarActions { visibility: hidden; }
+    header .stActionButton { visibility: hidden; }
  
     footer { visibility: hidden; }
 
