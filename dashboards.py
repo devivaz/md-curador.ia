@@ -194,7 +194,7 @@ chart_leads_por_origem.update_traces(textfont_size=13)
 
 chart_leads_por_origem.update_layout(legend=dict(
     font=dict(
-        size=15  # Tamanho da fonte da legenda
+        size=14  # Tamanho da fonte da legenda
     )
 ))
 
