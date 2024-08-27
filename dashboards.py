@@ -10,8 +10,29 @@ import utils
 st.set_page_config(
     layout='wide',
     page_title="Gestão de tráfego CuradorI.A",
-    page_icon=":bar_chart:")
+    page_icon=":bar_chart:",
+    menu_items={
+        "About": "https://www.linkedin.com/in/lucaseso",
+    })
 
+
+# Remover github
+hide_header_style = """
+    <style>
+    .stToolbarActions { visibility: hidden; }
+ 
+    footer { visibility: hidden; }
+
+    #bui1 > div > div > ul > *:not(:last-child) {
+        display: none;
+    }
+    #bui1 > div > div > ul > .main-menu-divider {
+        display: none;
+    }
+    </style>
+"""
+
+st.markdown(hide_header_style, unsafe_allow_html=True)
 
 # Sidebar
 st.sidebar.header("Aplicar filtros:")
