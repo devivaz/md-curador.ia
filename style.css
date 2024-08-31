@@ -11,7 +11,17 @@ footer { visibility: hidden; }
     display: none;
 }
 
-[data-testid=stImage]{
+
+[data-testid=stImage], [data-testid=stImageContainer] {
+  text-align: center;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+}
+
+/* Imagem expandida */
+button[title^=Exit]+div [data-testid=stImage]{
   text-align: center;
   display: block;
   margin-left: auto;
